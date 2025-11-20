@@ -41,7 +41,7 @@ left, right = st.columns([1, 2])
 with left:
     st.markdown("<div class='card'><div class='title'>📤 Upload Excel</div>", unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("Upload .xlsx / .xls", type=["xlsx", "xls"])
+    uploaded_file = st.file_uploader("Upload .xlsx / .xls", type=["xlsx", "xls"], key="uploader")
 
     if uploaded_file:
         df = pd.read_excel(uploaded_file, dtype=str)
@@ -53,7 +53,11 @@ with left:
         if st.button("Save to Database"):
             save_upload(uploaded_file.name, df)
             st.success("File saved successfully!")
-            st.experimental_rerun()
+
+            # SAFE REFRESH
+            st.session_state["refresh_uploads"] = True
+            st.session_state["uploader"] = None   # clears file input
+            st.stop()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -62,7 +66,12 @@ with left:
 with right:
     st.markdown("<div class='card'><div class='title'>📁 Uploaded Files</div>", unsafe_allow_html=True)
 
-    uploads = get_uploads()
+    # Force reload of uploaded file list
+    if st.session_state.get("refresh_uploads"):
+        uploads = get_uploads()
+        st.session_state["refresh_uploads"] = False
+    else:
+        uploads = get_uploads()
 
     if uploads.empty:
         st.info("No files uploaded yet.")

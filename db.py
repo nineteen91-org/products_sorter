@@ -1,11 +1,13 @@
 import sqlite3
 import pandas as pd
 import json
+import os
 
 DB_NAME = "records.db"
+DB_PATH = os.path.join(os.getcwd(), "uploads.db")
 
 def get_conn():
-    return sqlite3.connect(DB_NAME, check_same_thread=False)
+    return sqlite3.connect(DB_PATH, check_same_thread=False)
 
 def init_db():
     conn = get_conn()
